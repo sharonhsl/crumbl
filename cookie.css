@@ -1,0 +1,14 @@
+body {
+    background-color: #292929;
+    color: white;
+    min-width: 300px;
+    font-family: 'Roboto Mono', monospace;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    
+}
+
+#jar {
+    font-weight: 700;
+}

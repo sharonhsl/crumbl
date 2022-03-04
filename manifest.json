@@ -1,0 +1,20 @@
+{
+    "name": "Crumbl",
+    "description": "Watch your cookies trail!",
+    "version": "1.0",
+    "manifest_version": 3,
+    "action": {
+        "default_popup": "cookie.html",
+        "default_icon": "cookie.png"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "permissions": [
+        "cookies",
+        "tabs"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ]
+}
