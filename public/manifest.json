@@ -1,0 +1,26 @@
+{
+    "name": "Crumbl React",
+    "description": "Watch your cookies trail!",
+    "version": "1.0",
+    "manifest_version": 3,
+    "action": {
+        "default_popup": "index.html",
+        "default_icon": "cookie.png",
+        "default_title": "Open the popup"
+    },
+    "background": {
+        "service_worker": "./static/js/background.js"
+    },
+    "permissions": [
+        "cookies",
+        "tabs",
+        "webRequest",
+        "storage"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
+    "icons": {
+        "512": "cookie.png"
+    }
+}
