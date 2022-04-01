@@ -1,4 +1,5 @@
 import _, {debounce} from 'lodash';
+import * as psl from 'psl';
 
 export { }
 
@@ -12,21 +13,32 @@ chrome.runtime.onInstalled.addListener((details) => {
 const checkTabCookies = debounce((tabId: number) => {
     let total = 0;
     chrome.storage.local.get(tabId.toString(), (result) => {
-        result[tabId].forEach((domain: string) => {
-            chrome.cookies.getAll({domain: domain}, (cookies: any) => {
-                total += cookies.length;
-                // console.log(domain, total);
-                chrome.action.setBadgeText({
-                    text: total.toString()
-                })
-            })
-        });
+        if (result[tabId].length == 0) {
+            chrome.action.setBadgeText({
+                text: '0',
+                tabId: tabId
+            });
+        } else {
+            result[tabId].forEach((domain: string) => {
+                console.log("checkTabCookies ", domain);
+                chrome.cookies.getAll({domain: domain}, (cookies: any) => {
+                    total += cookies.length;
+                    chrome.action.setBadgeText({
+                        text: total.toString(),
+                        tabId: tabId
+                    });
+                });
+            });
+        }
     });
 }, 80);
 
 chrome.webRequest.onCompleted.addListener((details) => {
-    const hostname = new URL(details.url).hostname.replace('www.','');
+    // const hostname = new URL(details.url).hostname.replace('www.','');
+    // @ts-ignore
+    const hostname = psl.parse(new URL(details.url).hostname).domain;
     const tabId = details.tabId;
+
     chrome.storage.local.get({ [tabId]: [] }, (result) => {
         if (!result[tabId].includes(hostname)) {
             // console.log(result);
@@ -44,6 +56,7 @@ chrome.webRequest.onCompleted.addListener((details) => {
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (changeInfo.url != undefined) {
+        console.log("update tab ", tabId );
         chrome.storage.local.set({[tabId]: []});
     }
 });
@@ -72,12 +85,11 @@ chrome.tabs.onRemoved.addListener((tabId) => {
     });
 });
 
+chrome.windows.onRemoved.addListener(() => {
+    chrome.windows.getCurrent(() => {
+        if (chrome.runtime.lastError) chrome.storage.local.clear();
+    });
+});
 
-// chrome.cookies.onChanged.addListener(function (info) {
-    // console.log("onChanged" + JSON.stringify(info));
-    // chrome.runtime.sendMessage({greeting: "hello"}, function(response) {
-    //     console.log(response.farewell);
-    //   });
-// });
 
 

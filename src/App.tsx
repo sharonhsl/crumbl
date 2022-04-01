@@ -26,11 +26,9 @@ function App() {
 }, 80);
 
   const getTabId = () => chrome.tabs.query({active: true, currentWindow: true}, (result) => {
-    console.log(result);
     if (result.length > 0 && result[0].id !== undefined) {
         const tabId = result[0].id
         checkTabCookies(tabId);
-        console.log(tabId);
         chrome.cookies.onChanged.addListener(() => checkTabCookies(tabId));
     }
   });
