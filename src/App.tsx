@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import _, {debounce} from 'lodash';
+import { debounce } from 'lodash';
 import './App.css';
+import DailyCount from './components/DailyCount';
 
 function App() {
 
@@ -14,22 +15,24 @@ function App() {
   const checkTabCookies = debounce((tabId: number) => {
     chrome.storage.local.get(tabId.toString(), (result) => {
       let total = 0;
-      result[tabId].forEach((domain: string) => {
-          chrome.cookies.getAll({domain: domain}, (cookies: any) => {
+      if (result[tabId] !== undefined) {
+        result[tabId].forEach((domain: string) => {
+          chrome.cookies.getAll({ domain: domain }, (cookies: any) => {
             if (cookies.length > 0) {
               total += cookies.length;
               setCurrCount(total);
             }
           });
-      });
+        });
+      }
     });
-}, 80);
+  }, 80);
 
-  const getTabId = () => chrome.tabs.query({active: true, currentWindow: true}, (result) => {
+  const getTabId = () => chrome.tabs.query({ active: true, currentWindow: true }, (result) => {
     if (result.length > 0 && result[0].id !== undefined) {
-        const tabId = result[0].id
-        checkTabCookies(tabId);
-        chrome.cookies.onChanged.addListener(() => checkTabCookies(tabId));
+      const tabId = result[0].id
+      checkTabCookies(tabId);
+      chrome.cookies.onChanged.addListener(() => checkTabCookies(tabId));
     }
   });
 
@@ -39,17 +42,6 @@ function App() {
     getTabId();
   }, []);
 
-  // chrome.runtime.onMessage.addListener(
-  //   function(request, sender, sendResponse) {
-  //     console.log(sender.tab ?
-  //                 "from a content script:" + sender.tab.url :
-  //                 "from the extension");
-  //     if (request.greeting === "hello")
-  //       sendResponse({farewell: "goodbye"});
-  //   }
-  // );
-
-
   return (
     <div className="App">
       <header className="App-header">
@@ -57,6 +49,7 @@ function App() {
         <p>This website stores {currCount} cookies.</p>
         <p>Flavors: Advertisement x1</p>
       </header>
+      <DailyCount />
     </div>
   );
 }
