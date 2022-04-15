@@ -25,10 +25,13 @@ export class CrumblDexie extends Dexie {
 
 export const db = new CrumblDexie();
 
+const formatDate = (d: Date) => {
+  return d.toLocaleDateString('en-CA');
+}
+
 export const updateDailyCount = async () => {
   try {
-    const d = new Date();
-    const td = d.toISOString().substring(0,10)
+    const td = formatDate(new Date());
 
     chrome.cookies.getAll({}, (cookies) => {
       db.counts.put({date: td, count: cookies.length});
@@ -50,7 +53,7 @@ export const initDatabase = async () => {
       try {
         const d = new Date();
         d.setDate(d.getDate()-1);
-        const td = d.toISOString().substring(0,10)
+        const td = formatDate(d);
     
         chrome.cookies.getAll({}, (cookies) => {
           db.counts.put({date: td, count: cookies.length});
