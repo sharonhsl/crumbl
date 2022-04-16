@@ -20,7 +20,6 @@ const checkTabCookies = debounce((tabId: number) => {
                         text: total.toString(),
                         tabId: tabId
                     });
-                    // console.log("checkTabCookies ", domain, cookies.length);
                 });
             });
         }
@@ -46,14 +45,14 @@ chrome.cookies.onChanged.addListener(async () => {
 
 
 chrome.webRequest.onCompleted.addListener((details) => {
-    // const hostname = new URL(details.url).hostname.replace('www.','');
+    const hostname = new URL(details.url).hostname.replace('www.','');
     // @ts-ignore
-    const domain = psl.parse(new URL(details.url).hostname).domain;
+    const domain = psl.parse(hostname).domain;
     const tabId = details.tabId;
 
     chrome.storage.local.get({ [tabId]: [] }, (result) => {
-        if (domain && !result[tabId].includes(domain)) {
-            chrome.storage.local.set({ [tabId]: [...result[tabId], domain] },);
+        if (hostname && !result[tabId].includes(hostname)) {
+            chrome.storage.local.set({ [tabId]: [...result[tabId], hostname] },);
         }
     });
     chrome.tabs.query({ active: true, currentWindow: true }, (result) => {

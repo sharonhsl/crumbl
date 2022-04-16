@@ -8,13 +8,13 @@ import "./DailyCount.css";
 
 const DailyCount = () => {
     const counts = useLiveQuery(getDailyCount);
-    let diff;
+    let diff = 0;
     let lastDate;
-    if (counts && counts.length >= 2)  {
+    if (counts && counts.length >= 2) {
         let a = counts.at(-1)?.count;
         let b = counts.at(-2)?.count;
         if (a && b) {
-            diff = a-b;
+            diff = a - b;
             lastDate = counts.at(-2)?.date;
         };
     }
@@ -35,9 +35,9 @@ const DailyCount = () => {
                     strokeLinecap={'butt'}
                 />}
             </div>
-            {diff && diff >= 0 ? 
-            <p>Compared with {lastDate} you got +{diff} cookies.</p> :
-            <p>Compared with {lastDate} you got {diff} cookies.</p>}
+            {diff && diff >= 0 ?
+                <p>Compared with {lastDate} you got {diff} more cookies.</p> :
+                <p>Compared with {lastDate} you lost {diff * -1} cookies.</p>}
         </div>
     )
 }
