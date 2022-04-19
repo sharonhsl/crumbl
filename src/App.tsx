@@ -13,14 +13,14 @@ function App() {
     return null;
   }
 
-  const query = useQuery<number | null, Error>('tabId', getTabId);
+  const { isLoading, data } = useQuery<number | null, Error>('tabId', getTabId);
 
-  if (query.isLoading) return <p>...Loading</p>;
+  if (isLoading) return <p>...Loading</p>;
 
   return (
     <div className="App">
-      {query.data && <Overview tabId={query.data} />}
-      {query.data && <Flavors tabId={query.data} />}
+      {data && <Overview tabId={data} />}
+      {data && <Flavors tabId={data} />}
     </div>
   );
 }

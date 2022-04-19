@@ -12,7 +12,6 @@ function Overview(props: OverviewProps) {
     const [count, setCount] = useState("...");
     const [currCount, setCurrCount] = useState(0);
     const [domains, setDomains] = useState(new Set());
-    const [showFlavors, setShowFlavors] = useState(false);
 
     const updateJarCount = debounce(() => chrome.cookies.getAll({}, (cookies: any) => {
         setCount(cookies.length);

@@ -51,8 +51,8 @@ chrome.webRequest.onCompleted.addListener((details) => {
     const tabId = details.tabId;
 
     chrome.storage.local.get({ [tabId]: [] }, (result) => {
-        if (hostname && !result[tabId].includes(hostname)) {
-            chrome.storage.local.set({ [tabId]: [...result[tabId], hostname] },);
+        if (domain && !result[tabId].includes(domain)) {
+            chrome.storage.local.set({ [tabId]: [...result[tabId], domain] },);
         }
     });
     chrome.tabs.query({ active: true, currentWindow: true }, (result) => {

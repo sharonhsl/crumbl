@@ -22,6 +22,7 @@ const Flavors = (props: FlavorsProps) => {
                         (cookies) => c = c.concat(cookies)
                     );
                 }
+                c.sort((a,b) => a.domain > b.domain? 1: -1);
                 setData(c);
                 console.log(c);
             }
@@ -32,14 +33,15 @@ const Flavors = (props: FlavorsProps) => {
         if (props.tabId) checkTabCookies(props.tabId);
     }, []);
 
-    return <div>
+    return <div className={"flavors"}>
         {!showFlavors && <Button text="Show cookies!" onClick={() => setShowFlavors(true)}></Button>}
         {showFlavors && <Button text="Hide cookies" onClick={() => setShowFlavors(false)}></Button>}
         {showFlavors && <table>
             <thead>
                 <tr>
-                    <th>name</th>
+                    <th style={{width: "10%"}}></th>
                     <th>domain</th>
+                    <th>name</th>
                     <th>expiry</th>
                 </tr>
             </thead>
@@ -48,9 +50,10 @@ const Flavors = (props: FlavorsProps) => {
                     let date;
                     if (d.expirationDate) date = new Date(d.expirationDate * 1000);
                     return <tr key={i}>
-                        <th>{d.name}</th>
-                        <th>{d.domain}</th>
-                        <th>{date && date.toLocaleDateString()}</th>
+                        <td>{i+1}</td>
+                        <td>{d.domain}</td>
+                        <td>{d.name}</td>
+                        <td>{date && date.toLocaleDateString()}</td>
                     </tr>
                 })}
             </tbody>

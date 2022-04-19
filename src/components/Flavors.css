@@ -5,4 +5,17 @@ table {
     text-align: center;
     text-decoration: none;
     font-size: 12px;
+    width: 100%;
+    table-layout: fixed;
+}
+
+td {
+    word-wrap: break-word;
+}
+
+.flavors {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
 }
