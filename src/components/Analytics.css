@@ -1,0 +1,11 @@
+.analytics {
+    min-width: 500px;
+    font-family: 'Roboto Mono', monospace;
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-size: 12px;
+    width: 100%;
+    table-layout: fixed;
+}

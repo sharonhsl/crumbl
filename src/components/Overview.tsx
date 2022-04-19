@@ -1,5 +1,6 @@
 import { debounce } from 'lodash';
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import DailyCount from './DailyCount';
 import './Overview.css';
 
@@ -55,6 +56,7 @@ function Overview(props: OverviewProps) {
         <div className="App">
             <header className="App-header">
                 <p>You got {count} cookies in your jar.</p>
+                <Link to="/analytics">Learn more</Link>
                 {currCount === 0 ?
                     <p>This website stores no cookie.</p> :
                     <p>This website may have enabled {domainsText} to store {currCount} cookies.</p>}
