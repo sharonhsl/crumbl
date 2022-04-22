@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import "./Analytics.css";
 import Button from './Button';
 import TopSites from './TopSites';
+import StaleCookies from './StaleCookies';
 import AboutCrumbl from './About';
 
 
@@ -70,7 +71,7 @@ const Analytics = () => {
                 <TopSites />
             </TabPanel>
             <TabPanel value={value} index={1}>
-                Stale cookies
+                <StaleCookies />
             </TabPanel>
             <TabPanel value={value} index={2}>
                 <AboutCrumbl />
