@@ -7,3 +7,23 @@
   font-size: 12px;
   width: 100%;
 }
+
+.text {
+  font-family: 'Roboto Mono', monospace;
+  border: none;
+  color: white;
+  text-align: left;
+  padding-left: 20px;
+  text-decoration: none;
+  font-size: 12px;
+  width: 100%;
+}
+
+.table {
+  table-layout: fixed;
+}
+
+.canvas {
+  width: 100%;
+  max-width: 600px;
+}
