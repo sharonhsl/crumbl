@@ -12,24 +12,22 @@ const Flavors = (props: FlavorsProps) => {
     const [data, setData] = useState<chrome.cookies.Cookie[]>([]);
     const [showFlavors, setShowFlavors] = useState(false);
 
-    const checkTabCookies = debounce((tabId: number) => {
-        chrome.storage.local.get(tabId.toString(), async (result) => {
-            if (result[tabId] !== undefined) {
-                let c: chrome.cookies.Cookie[] = [];
-                for (let i = 0; i < result[tabId].length; i++) {
-                    const domain = result[tabId][i];
-                    await chrome.cookies.getAll({ domain: domain }).then(
-                        (cookies) => c = c.concat(cookies)
-                    );
-                }
-                c.sort((a,b) => a.domain > b.domain? 1: -1);
-                setData(c);
-                console.log(c);
-            }
-        });
-    });
-
     useEffect(() => {
+        const checkTabCookies = debounce((tabId: number) => {
+            chrome.storage.local.get(tabId.toString(), async (result) => {
+                if (result[tabId] !== undefined) {
+                    let c: chrome.cookies.Cookie[] = [];
+                    for (let i = 0; i < result[tabId].length; i++) {
+                        const domain = result[tabId][i];
+                        await chrome.cookies.getAll({ domain: domain }).then(
+                            (cookies) => c = c.concat(cookies)
+                        );
+                    }
+                    c.sort((a, b) => a.domain > b.domain ? 1 : -1);
+                    setData(c);
+                }
+            });
+        });
         if (props.tabId) checkTabCookies(props.tabId);
     }, []);
 
@@ -39,7 +37,7 @@ const Flavors = (props: FlavorsProps) => {
         {showFlavors && <table>
             <thead>
                 <tr>
-                    <th style={{width: "10%"}}></th>
+                    <th style={{ width: "10%" }}></th>
                     <th>domain</th>
                     <th>name</th>
                     <th>expiry</th>
@@ -50,7 +48,7 @@ const Flavors = (props: FlavorsProps) => {
                     let date;
                     if (d.expirationDate) date = new Date(d.expirationDate * 1000);
                     return <tr key={i}>
-                        <td>{i+1}</td>
+                        <td>{i + 1}</td>
                         <td>{d.domain}</td>
                         <td>{d.name}</td>
                         <td>{date && date.toLocaleDateString()}</td>

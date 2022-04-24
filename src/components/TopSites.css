@@ -14,6 +14,11 @@
     justify-content: center;
 }
 
+.top-sites-recommendation-text {
+    text-align: left;
+    padding: 0 20px;
+}
+
 .blocker {
     margin: 10px;
 }

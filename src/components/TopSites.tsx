@@ -19,20 +19,28 @@ const TableHeader = () => {
 
 const RecSec = () => {
     return (
-        <div><p>We recommend you install a general-purpose blocker to reduce your Internet footprint. Here’re some chrome extensions of non-profit blockers:</p>
+        <div>
+            <div className='top-sites-recommendation-text'>
+                <p>We recommend you install a general-purpose blocker to reduce your Internet footprint. Here’re some chrome extensions of non-profit blockers:</p>
+            </div>
             <div className="top-sites-recommendation">
                 <div className="blocker">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/UBlock_Origin.svg/1200px-UBlock_Origin.svg.png" width={30} height={30} />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/UBlock_Origin.svg/1200px-UBlock_Origin.svg.png"
+                        width={30}
+                        height={30}
+                        alt="ublock icon" />
                     <br></br>
                     <a href='https://ublock.org/'>ublock</a>
                 </div>
                 <div className="blocker">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/PrivacyBadgerLogo.svg/1200px-PrivacyBadgerLogo.svg.png" width={40} height={30} />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/PrivacyBadgerLogo.svg/1200px-PrivacyBadgerLogo.svg.png"
+                        width={40}
+                        height={30}
+                        alt="privacy badger icon" />
                     <br></br>
-                    <a href='https://privacybadger.org/'>Privacy bager</a>
+                    <a href='https://privacybadger.org/'>Privacy Badger</a>
                 </div>
             </div>
-
         </div>
     )
 }
@@ -64,8 +72,6 @@ const TopSites = () => {
                 }
                 top_sites.sort(function (a, b) { return b.count - a.count });
                 let top_10 = top_sites.slice(0, 10);
-                console.log("this is will's top 10");
-                console.log(top_10);
                 setTable(top_10);
             }
         );

@@ -1,12 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { BrowserRouter, MemoryRouter, Route, Routes } from 'react-router-dom';
-import TopSites from './components/TopSites';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import App from './App';
 import Analytics from './components/Analytics';
+import './index.css';
+import reportWebVitals from './reportWebVitals';
 
 const queryClient = new QueryClient();
 
