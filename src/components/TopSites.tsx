@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import "./TopSites.css";
 
 const TableHeader = () => {
@@ -11,57 +11,92 @@ const TableHeader = () => {
                 <th>
                     Count
                 </th>
-                <th>
-                    Category
-                </th>
+
             </tr>
         </thead>
     )
 }
 
-const RecSec =()=>{
-    return(
+const RecSec = () => {
+    return (
         <div><p>We recommend you install a general-purpose blocker to reduce your Internet footprint. Here’re some chrome extensions of non-profit blockers:</p>
-        <div >
-            <div > </div>
-            <div >
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/UBlock_Origin.svg/1200px-UBlock_Origin.svg.png" width={30} height={30} />
-                <br></br>
-                <a href ='https://ublock.org/'>ublock</a>
+            <div className="top-sites-recommendation">
+                <div className="blocker">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/UBlock_Origin.svg/1200px-UBlock_Origin.svg.png" width={30} height={30} />
+                    <br></br>
+                    <a href='https://ublock.org/'>ublock</a>
+                </div>
+                <div className="blocker">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/PrivacyBadgerLogo.svg/1200px-PrivacyBadgerLogo.svg.png" width={40} height={30} />
+                    <br></br>
+                    <a href='https://privacybadger.org/'>Privacy bager</a>
+                </div>
             </div>
-            <div >
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/PrivacyBadgerLogo.svg/1200px-PrivacyBadgerLogo.svg.png" width={40} height={30} />
-                <br></br>
-                <a href ='https://privacybadger.org/'>Privacy bager</a>
-            </div>
-            <div > </div>
-        </div>
 
-    </div>
+        </div>
     )
 }
 
+interface TableRow {
+    domain: string;
+    count: number;
+}
+
 const TopSites = () => {
-    const mock = [
-        { domain: "google.com", count: 523, category: "CDN" },
-        { domain: "googletagmanger.com", count: 523, category: "Essential" }
-    ];
+    const [table, setTable] = useState<TableRow[]>([]);
 
-    console.log(mock);
+    const fetchTopSites = () => {
+        //group top site
+        chrome.cookies.getAll(
+            {}, (cookies) => {
+                const sites: { [key: string]: number; } = {};
+                for (let i = 0; i < cookies.length; i++) {
+                    if (sites[cookies[i].domain] === undefined) {
+                        sites[cookies[i].domain] = 0;
+                    }
+                    sites[cookies[i].domain] += 1;
+                }
 
-    return (<div>
-        <TableHeader />
-        <tbody>
-            {mock.map(row =>
-                <tr>
-                    <td>{row.domain}</td>
-                    <td>{row.count}</td>
-                    <td>{row.category}</td>
-                </tr>
-            )}
-        </tbody>
-        <RecSec />
-    </div>);
-};
+                // get top 10 sites
+                let top_sites = new Array();
+                for (var [site, count] of Object.entries(sites)) {
+                    top_sites.push({ domain: site, count: count });
+                }
+                top_sites.sort(function (a, b) { return b.count - a.count });
+                let top_10 = top_sites.slice(0, 10);
+                console.log("this is will's top 10");
+                console.log(top_10);
+                setTable(top_10);
+            }
+        );
+    }
+
+    useEffect(() => {
+        fetchTopSites();
+    }, []);
+
+
+    if (table.length === 0) {
+        return <RecSec />
+    } else {
+        return <>
+            <table>
+                <TableHeader />
+                <tbody>
+                    {table.map(((row, index) =>
+                        <tr key={index}>
+                            <td>{row.domain}</td>
+                            <td>{row.count}</td>
+                        </tr>
+                    ))
+                    }
+                </tbody>
+            </table>
+            <RecSec />
+        </>
+    }
+}
+
+
 
 export default TopSites;
