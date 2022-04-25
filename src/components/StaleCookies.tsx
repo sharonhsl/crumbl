@@ -8,11 +8,11 @@ import "./StaleCookies.css";
 
 function StaleCookies() {
     const Notification1 = () => {
-        const count = useState("...");
+        const count = 442
         return (
             <div className='text'>
-                <p>You have {count} cookies that haven't been accessed in the past 7 days.</p >
-                <p>Here're the 10 earliest cookies in your jar: </p >
+                <p>You have {count} cookies that will expire in the next 30 days.</p >
+                <p>Here're the 10 closest expiring cookies in your jar: </p >
             </div>
         )
     }
@@ -21,7 +21,7 @@ function StaleCookies() {
         return (
             <div className='text'>
                 <p>We recommend you delete stale cookies regularly. Regular deletion keeps your web browswer safer and quicker.</p >
-                <p>Click to delete all the cookies that haven't been modified in the past 7 days:</p >
+                <p>Click to delete all the cookies that will expire in the next 30 days:</p >
             </div>
         )
     }
@@ -34,7 +34,7 @@ function StaleCookies() {
                         Domain
                     </th>
                     <th>
-                        Last Modified Time
+                        Expiration Time
                     </th>
                 </tr>
             </thead>
@@ -42,10 +42,10 @@ function StaleCookies() {
     }
 
     const mock = [
-        { domain: "google.com", last_modification: "Wednesday, 20 October 2019" },
-        { domain: "facebook.com", last_modification: "Saturday, 20 November 2019" },
-        { domain: "microsoft.com", last_modification: "Thursday, 20 January 2019" },
-        { domain: "...", last_modification: "..." }
+        { domain: "google.com", expiration_time: "Wednesday, 25 April 2022" },
+        { domain: "facebook.com", expiration_time: "Saturday, 30 April 2022" },
+        { domain: "microsoft.com", expiration_time: "Thursday, 5 May 2022" },
+        { domain: "...", expiration_time: "..." }
     ];
 
     console.log(mock);
@@ -96,7 +96,7 @@ function StaleCookies() {
             {mock.map(row =>
                 <tr>
                     <td>{row.domain}</td>
-                    <td>{row.last_modification}</td>
+                    <td>{row.expiration_time}</td>
                 </tr>
             )}
         </tbody>
@@ -110,20 +110,25 @@ function StaleCookies() {
                     // console.info(cookie)
                     if (cookie.expirationDate) {
                         const cookieExpireTime = new Date(cookie.expirationDate * 1000).valueOf()
-                        // console.log(cookieExpireTime)
+                        console.log("expire "+cookieExpireTime)
                         const currentTime = Date.now()
-                        // milleseconds for 365 days
-                        if (cookieExpireTime - currentTime < 86400 * 30) {
-                          chrome.cookies.remove({ name: cookie.name, url: cookie.domain })
-                          console.log("deleted")
-                          count = count + 1
+                        console.log("now "+currentTime)
+                        const timeperiodDays = (cookieExpireTime - currentTime) / 86400000
+                        console.log("period "+timeperiodDays.toString())
+                        // seconds for 30 days
+                        if (timeperiodDays < 30) {
+                        //   chrome.cookies.remove({ name: cookie.name, url: cookie.domain })
+                        //   console.log("deleted")
+                          count += 1
+                          console.log("add")
                         }
                           
                     }
                     
                 })
+            alert("You have deleted "+count+" stale cookies!")
             })
-            alert("You have deleted "+count.toString()+" stale cookies!")
+            
             
         }}></Button>
     </div>);
