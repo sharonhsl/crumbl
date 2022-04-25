@@ -30,7 +30,7 @@ const RecSec = () => {
                         height={30}
                         alt="ublock icon" />
                     <br></br>
-                    <a href='https://ublock.org/'>ublock</a>
+                    <a href='https://ublock.org/' target="_blank">ublock</a>
                 </div>
                 <div className="blocker">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/PrivacyBadgerLogo.svg/1200px-PrivacyBadgerLogo.svg.png"
@@ -38,7 +38,7 @@ const RecSec = () => {
                         height={30}
                         alt="privacy badger icon" />
                     <br></br>
-                    <a href='https://privacybadger.org/'>Privacy Badger</a>
+                    <a href='https://privacybadger.org/' target="_blank">Privacy Badger</a>
                 </div>
             </div>
         </div>
