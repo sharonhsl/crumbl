@@ -11,7 +11,7 @@ interface OverviewProps {
 function Overview(props: OverviewProps) {
 
     const [count, setCount] = useState("...");
-    const [currCount, setCurrCount] = useState(0);
+    const [currCount, setCurrCount] = useState(-1);
     const [domains, setDomains] = useState(new Set());
 
     const updateJarCount = debounce(() => chrome.cookies.getAll({}, (cookies: any) => {
@@ -57,9 +57,10 @@ function Overview(props: OverviewProps) {
             <header className="App-header">
                 <p>You got {count} cookies in your jar.</p>
                 <Link to="/analytics">Learn more</Link>
-                {currCount === 0 ?
-                    <p>This website stores no cookie.</p> :
-                    <p>This website may have enabled {domainsText} to store {currCount} cookies.</p>}
+                {currCount === -1 ?
+                    <p>...</p> : currCount === 0 ?
+                        <p>This website stores no cookie.</p> :
+                        <p>This website may have enabled {domainsText} to store {currCount} cookies.</p>}
             </header>
             <DailyCount />
         </div>
