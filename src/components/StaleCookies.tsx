@@ -1,6 +1,5 @@
-import { display } from '@mui/system';
-import { type } from '@testing-library/user-event/dist/type';
-import React, { useState } from 'react';
+import { debounce } from 'lodash';
+import React, { useEffect, useState } from 'react';
 import Button from './Button';
 import "./StaleCookies.css";
 
@@ -8,11 +7,42 @@ import "./StaleCookies.css";
 
 function StaleCookies() {
     const Notification1 = () => {
-        const count = 442
+        // let count = 0;
+        // chrome.cookies.getAll(
+        //     {}, (cookies) => {
+        //         return cookies.length;
+        // });
+        const [count, setCount] = useState("...");
+        
+        const updateJarCount = debounce(() => chrome.cookies.getAll({}, (cookies) => {
+            var expiring_length = 0;
+            cookies.forEach((cookie) => {
+                
+                // console.info(cookie)
+                if (cookie.expirationDate) {
+                    const cookieExpireTime = new Date(cookie.expirationDate * 1000).valueOf()
+                    const currentTime = Date.now()
+                    const timeperiodDays = (cookieExpireTime - currentTime) / 86400000
+                    // seconds for 30 days
+                    if (timeperiodDays < 30) {
+                    //   chrome.cookies.remove({ name: cookie.name, url: cookie.domain })
+                    //   console.log("deleted")
+                      expiring_length += 1
+                    }
+                }    
+            })
+            setCount(expiring_length.toString())
+        }), 1000);
+
+        useEffect(() => {
+            updateJarCount();
+            chrome.cookies.onChanged.addListener(updateJarCount);
+        }, [updateJarCount]);
+
         return (
             <div className='text'>
                 <p>You have {count} cookies that will expire in the next 30 days.</p >
-                <p>Here're the 10 closest expiring cookies in your jar: </p >
+                <p>Here're the 3 closest expiring cookies in your jar: </p >
             </div>
         )
     }
@@ -86,22 +116,67 @@ function StaleCookies() {
             </div>
         )
     }
+    interface TableRow {
+        domain: string;
+        expirationTime: number;
+    }
+    
+    const TopSites = () => {
+        const [table, setTable] = useState<TableRow[]>([]);
+    
+        const fetchTopSites = () => {
+            //group top site
+            chrome.cookies.getAll(
+                {}, (cookies) => {
+                    const sites: { [key: string]: number; } = {};
+                    cookies.forEach((cookie) => {
+                        if (cookie.expirationDate) {
+                            sites[cookie.domain] = cookie.expirationDate;
+                        }
+                    })
+
+                    let top_sites = new Array();
+                    for (var [site, count] of Object.entries(sites)) {
+                        var date = new Date(count * 1000).toDateString()
+                        top_sites.push({ domain: site, expirationTime: date });
+                    }
+                    top_sites.sort(function (a, b) { return b.count - a.count });
+                    let top_10 = top_sites.slice(0, 3);
+                    setTable(top_10);
+                }
+            );
+        }  
+        useEffect(() => {
+            fetchTopSites();
+        }, []);
+        return <>
+            <table>
+                <TableHeader />
+                <tbody>
+                    {table.map(((row, index) =>
+                        <tr key={index}>
+                            <td>{row.domain}</td>
+                            <td>{row.expirationTime}</td>
+                        </tr>
+                    ))
+                    }
+                </tbody>
+            </table>
+        </>
+    }
+    
+    
+  
+    
 
     return (<div>
         <Notification1 />
         <BarGraph />
-        <table className='table'>
-        <TableHeader />
-        <tbody>
-            {mock.map(row =>
-                <tr>
-                    <td>{row.domain}</td>
-                    <td>{row.expiration_time}</td>
-                </tr>
-            )}
-        </tbody>
-        </table>
+        {/* <TableHeader /> */}
+        <TopSites/>
         <Notification2 />
+
+
         <Button text="Delete cookies!" onClick={(event: React.MouseEvent<HTMLElement>) => {
             var count = 0
             event.preventDefault()
