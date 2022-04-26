@@ -39,7 +39,6 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 });
 
 chrome.cookies.onChanged.addListener(async () => {
-    // debounce(updateDailyCount);
     await updateDailyCount();
 });
 
