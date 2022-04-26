@@ -6,50 +6,66 @@ import "./StaleCookies.css";
 
 
 function StaleCookies() {
-    const Notification1 = () => {
-        // let count = 0;
-        // chrome.cookies.getAll(
-        //     {}, (cookies) => {
-        //         return cookies.length;
-        // });
-        const [count, setCount] = useState("...");
+    
+    const [count, setCount] = useState("...");
+    const [count2, setCount2] = useState("...");
+    const [count3, setCount3] = useState("...");
+    const [count4, setCount4] = useState("...");
+    const updateJarCount = debounce(() => chrome.cookies.getAll({}, (cookies) => {
+        var expiring_length_30days = 0;
+        var expiring_length_oneyear = 0;
+        var expiring_length_1000 = 0;
+        var total_count = 0;
+        var total_time = 0;
+        cookies.forEach((cookie) => {
+            if (cookie.expirationDate) {
+                const cookieExpireTime = new Date(cookie.expirationDate * 1000).valueOf()
+                const currentTime = Date.now()
+                const timeperiodDays = (cookieExpireTime - currentTime) / 86400000
+                if (timeperiodDays < 30) {
+                    expiring_length_30days += 1
+                }
+                if (timeperiodDays < 365) {
+                    expiring_length_oneyear += 1
+                }
+                if (timeperiodDays > 365*5) {
+                    expiring_length_1000 += 1
+                }
+                total_count += 1
+                total_time += cookie.expirationDate.valueOf()
+            }
+            
+        })
+        var expiring_length_avg = new Date((total_time/total_count)*1000).toDateString()
+        console.log(expiring_length_avg)
+        setCount(expiring_length_30days.toString())
+        setCount2(expiring_length_oneyear.toString())
+        setCount3(expiring_length_1000.toString())
+        setCount4(expiring_length_avg.toString())
         
-        const updateJarCount = debounce(() => chrome.cookies.getAll({}, (cookies) => {
-            var expiring_length = 0;
-            cookies.forEach((cookie) => {
-                
-                // console.info(cookie)
-                if (cookie.expirationDate) {
-                    const cookieExpireTime = new Date(cookie.expirationDate * 1000).valueOf()
-                    const currentTime = Date.now()
-                    const timeperiodDays = (cookieExpireTime - currentTime) / 86400000
-                    // seconds for 30 days
-                    if (timeperiodDays < 30) {
-                    //   chrome.cookies.remove({ name: cookie.name, url: cookie.domain })
-                    //   console.log("deleted")
-                      expiring_length += 1
-                    }
-                }    
-            })
-            setCount(expiring_length.toString())
-        }), 1000);
+    }), 1000);
 
-        useEffect(() => {
-            updateJarCount();
-            chrome.cookies.onChanged.addListener(updateJarCount);
-        }, [updateJarCount]);
+    useEffect(() => {
+        updateJarCount();
+        chrome.cookies.onChanged.addListener(updateJarCount);
+    }, [updateJarCount]);
 
+    const Notification1 = () => {
         return (
             <div className='text'>
-                <p>You have {count} cookies that will expire in the next 30 days.</p >
-                <p>Here're the 3 closest expiring cookies in your jar: </p >
+                <p>You have {count} cookies that will expire in the next month.</p>
+                <p>You have {count2} cookies that will expire in the next year.</p>
+                <p>You have {count3} cookies that will <b>NOT</b> expire in the next five years.</p>
+                <p>Here're the 10 closest expiring cookies in your jar: </p >
             </div>
         )
     }
+    
 
     const Notification2 = () => {
         return (
             <div className='text'>
+                <p>The average time of your cookie expiration date is {count4}.</p>
                 <p>We recommend you delete stale cookies regularly. Regular deletion keeps your web browswer safer and quicker.</p >
                 <p>Click to delete all the cookies that will expire in the next 30 days:</p >
             </div>
@@ -70,52 +86,6 @@ function StaleCookies() {
             </thead>
         )
     }
-
-    const mock = [
-        { domain: "google.com", expiration_time: "Wednesday, 25 April 2022" },
-        { domain: "facebook.com", expiration_time: "Saturday, 30 April 2022" },
-        { domain: "microsoft.com", expiration_time: "Thursday, 5 May 2022" },
-        { domain: "...", expiration_time: "..." }
-    ];
-
-    console.log(mock);
-
-    const BarGraph = () => {
-        return (
-            <div>
-                {/* <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
-        <body>
-
-        <canvas id="myChart" className='canvas'></canvas>
-
-        <script>
-        var xValues = ["Nov2019", "","","","","","","","","Today"];
-        var yValues = [55, 49, 44, 24, 15, 46, 87, 23, 36, 47];
-        var barColors = ["black","black","black","black","black","black","black","black","black","black"];
-
-        new Chart("myChart", {
-          type: "bar",
-          data: {
-            labels: xValues,
-            datasets: [{
-              backgroundColor: barColors,
-              data: yValues
-            }]
-          },
-          options: {
-            legend: {display: false},
-            title: {
-              display: true,
-              text: "Cookie by last accessed"
-            }
-          }
-        });
-        </script>
-
-        </body> */}
-            </div>
-        )
-    }
     interface TableRow {
         domain: string;
         expirationTime: number;
@@ -134,21 +104,22 @@ function StaleCookies() {
                             sites[cookie.domain] = cookie.expirationDate;
                         }
                     })
-
                     let top_sites = new Array();
-                    for (var [site, count] of Object.entries(sites)) {
-                        var date = new Date(count * 1000).toDateString()
+                    for (var [site, exprire_time] of Object.entries(sites)) {
+                        var date = new Date(exprire_time * 1000).toDateString()
                         top_sites.push({ domain: site, expirationTime: date });
                     }
-                    top_sites.sort(function (a, b) { return b.count - a.count });
-                    let top_10 = top_sites.slice(0, 3);
+                    top_sites.sort(function (a, b) { return a.expirationTime - b.expprationTime }).slice(0,10);
+                    let top_10 = top_sites.slice(0, 10);
                     setTable(top_10);
                 }
             );
         }  
+        
         useEffect(() => {
             fetchTopSites();
         }, []);
+
         return <>
             <table>
                 <TableHeader />
@@ -171,8 +142,6 @@ function StaleCookies() {
 
     return (<div>
         <Notification1 />
-        <BarGraph />
-        {/* <TableHeader /> */}
         <TopSites/>
         <Notification2 />
 
@@ -191,8 +160,8 @@ function StaleCookies() {
                         const timeperiodDays = (cookieExpireTime - currentTime) / 86400000
                         console.log("period "+timeperiodDays.toString())
                         // seconds for 30 days
-                        if (timeperiodDays < 30) {
-                        //   chrome.cookies.remove({ name: cookie.name, url: cookie.domain })
+                        if (timeperiodDays < 2) {
+                          chrome.cookies.remove({ name: cookie.name, url: cookie.domain })
                         //   console.log("deleted")
                           count += 1
                           console.log("add")
