@@ -11,17 +11,23 @@ function StaleCookies() {
     const [count2, setCount2] = useState("...");
     const [count3, setCount3] = useState("...");
     const [count4, setCount4] = useState("...");
+    const [count5, setCount5] = useState("...");
+    const [count6, setCount6] = useState("...");
+    var info; 
+    var expiring_length_30days = 0;
+    var expiring_length_oneyear = 0;
+    var expiring_length_1000 = 0;
+    var expiring_length_20yrs = 0;
+    var total_count = 0;
+    var total_time = 0;
+    var days = new Array();
+
     const updateJarCount = debounce(() => chrome.cookies.getAll({}, (cookies) => {
-        var expiring_length_30days = 0;
-        var expiring_length_oneyear = 0;
-        var expiring_length_1000 = 0;
-        var total_count = 0;
-        var total_time = 0;
         cookies.forEach((cookie) => {
             if (cookie.expirationDate) {
-                const cookieExpireTime = new Date(cookie.expirationDate * 1000).valueOf()
-                const currentTime = Date.now()
-                const timeperiodDays = (cookieExpireTime - currentTime) / 86400000
+                var cookieExpireTime = new Date(cookie.expirationDate * 1000).valueOf()
+                var currentTime = Date.now()
+                var timeperiodDays = (cookieExpireTime - currentTime) / 86400000
                 if (timeperiodDays < 30) {
                     expiring_length_30days += 1
                 }
@@ -31,43 +37,65 @@ function StaleCookies() {
                 if (timeperiodDays > 365*5) {
                     expiring_length_1000 += 1
                 }
-                total_count += 1
-                total_time += cookie.expirationDate.valueOf()
+                if (timeperiodDays > 365*20) {
+                    expiring_length_20yrs += 1
+                } 
+                if (timeperiodDays < 365*1000) {
+                    total_count += 1
+                    total_time += Math.trunc(timeperiodDays)
+                    days.push(timeperiodDays)
+                } 
             }
-            
         })
-        var expiring_length_avg = new Date((total_time/total_count)*1000).toDateString()
-        console.log(expiring_length_avg)
+        days.sort()
+        var median = days[Math.trunc(total_count/2)]
+        var expiring_length_avg = Math.trunc(total_time/total_count)
+
         setCount(expiring_length_30days.toString())
         setCount2(expiring_length_oneyear.toString())
         setCount3(expiring_length_1000.toString())
         setCount4(expiring_length_avg.toString())
+        setCount5(expiring_length_20yrs.toString())
+        setCount6(median.toString())
         
     }), 1000);
 
     useEffect(() => {
         updateJarCount();
         chrome.cookies.onChanged.addListener(updateJarCount);
-    }, [updateJarCount]);
+    }, []);
 
     const Notification1 = () => {
         return (
             <div className='text'>
-                <p>You have {count} cookies that will expire in the next month.</p>
-                <p>You have {count2} cookies that will expire in the next year.</p>
-                <p>You have {count3} cookies that will <b>NOT</b> expire in the next five years.</p>
-                <p>Here're the 10 closest expiring cookies in your jar: </p >
+                <p>In your cookie jar, you have {count} cookies that will expire in the next month, {count2} in the next year.</p>
+                <p>There are {count3} cookies will last for more than <b>5 years</b>, {count5} cookies more than <b>20 years</b>.</p>
+                <p>Here're the 10 longest living cookies in your jar: </p >
             </div>
         )
     }
     
 
     const Notification2 = () => {
+        const avg = parseInt(count4)
+        const median = parseInt(count6)
+        if (avg < 218 && median < 68) {
+            info = "your cookies are below the standard."
+        } else if (avg < 218 && median >= 68) {
+            info = "there are more long living cookies in your browser."
+        } else if (avg >= 218 && median < 68) {
+            info = "there are more cookies that has extremely long lifespan."
+        } else {
+            info = "it is better for you to remove some of your cookies!"
+        }
+
         return (
-            <div className='text'>
-                <p>The average time of your cookie expiration date is {count4}.</p>
-                <p>We recommend you delete stale cookies regularly. Regular deletion keeps your web browswer safer and quicker.</p >
-                <p>Click to delete all the cookies that will expire in the next 30 days:</p >
+            <div className="text">
+           <p>The average lifetime of your cookies is {avg} days, the median lifetime is {median} days.</p>
+                <p>According to large datasets with 218 days average and 68 days median, {info}</p>
+                <p> <br></br>
+                Manage your <a href="https://support.google.com/chrome/answer/95647?hl=en&co=GENIE.Platform%3DDesktop" target="_blank">cookies on chrome browser</a>.</p>
+                
             </div>
         )
     }
@@ -88,14 +116,14 @@ function StaleCookies() {
     }
     interface TableRow {
         domain: string;
-        expirationTime: number;
+        expirationTime_number: number;
+        expirationTime_string: string;
     }
     
     const TopSites = () => {
+        // console.log("a"+chrome.cookies.set.length)
         const [table, setTable] = useState<TableRow[]>([]);
-    
         const fetchTopSites = () => {
-            //group top site
             chrome.cookies.getAll(
                 {}, (cookies) => {
                     const sites: { [key: string]: number; } = {};
@@ -105,11 +133,11 @@ function StaleCookies() {
                         }
                     })
                     let top_sites = new Array();
-                    for (var [site, exprire_time] of Object.entries(sites)) {
-                        var date = new Date(exprire_time * 1000).toDateString()
-                        top_sites.push({ domain: site, expirationTime: date });
+                    for (var [site, expire_time] of Object.entries(sites)) {
+                        var date = new Date(expire_time * 1000).toDateString()
+                        top_sites.push({ domain: site, expirationTime_number: Math.trunc(expire_time*1000), expirationTime_string: date });
                     }
-                    top_sites.sort(function (a, b) { return a.expirationTime - b.expprationTime }).slice(0,10);
+                    top_sites.sort(function (a, b) { return b.expirationTime_number - a.expirationTime_number });
                     let top_10 = top_sites.slice(0, 10);
                     setTable(top_10);
                 }
@@ -127,7 +155,7 @@ function StaleCookies() {
                     {table.map(((row, index) =>
                         <tr key={index}>
                             <td>{row.domain}</td>
-                            <td>{row.expirationTime}</td>
+                            <td>{row.expirationTime_string}</td>
                         </tr>
                     ))
                     }
@@ -146,7 +174,7 @@ function StaleCookies() {
         <Notification2 />
 
 
-        <Button text="Delete cookies!" onClick={(event: React.MouseEvent<HTMLElement>) => {
+        {/* <Button text="Delete cookies!" onClick={(event: React.MouseEvent<HTMLElement>) => {
             var count = 0
             event.preventDefault()
             chrome.cookies.getAll({}, (cookies) => {
@@ -160,9 +188,8 @@ function StaleCookies() {
                         const timeperiodDays = (cookieExpireTime - currentTime) / 86400000
                         console.log("period "+timeperiodDays.toString())
                         // seconds for 30 days
-                        if (timeperiodDays < 2) {
+                        if (timeperiodDays < 4) {
                           chrome.cookies.remove({ name: cookie.name, url: cookie.domain })
-                        //   console.log("deleted")
                           count += 1
                           console.log("add")
                         }
@@ -172,15 +199,11 @@ function StaleCookies() {
                 })
             alert("You have deleted "+count+" stale cookies!")
             })
+            console.log(chrome.cookies.set.length)
             
             
-        }}></Button>
+        }}></Button> */}
     </div>);
 }
-
-
-
-
-
 
 export default StaleCookies;

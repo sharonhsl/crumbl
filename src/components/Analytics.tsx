@@ -63,7 +63,7 @@ const Analytics = () => {
                     textColor='inherit'
                     centered>
                     <Tab label="Top sites" {...a11yProps(0)} sx={{ fontFamily: "inherit" }} />
-                    <Tab label="Stale cookies" {...a11yProps(1)} sx={{ fontFamily: "inherit" }} />
+                    <Tab label="Expiration" {...a11yProps(1)} sx={{ fontFamily: "inherit" }} />
                     <Tab label="About" {...a11yProps(2)} sx={{ fontFamily: "inherit" }} />
                 </Tabs>
             </Box>
