@@ -47,8 +47,10 @@ function StaleCookies() {
                 } 
             }
         })
-        days.sort()
-        var median = days[Math.trunc(total_count/2)]
+        days.sort(function (a, b) { return a - b });
+        console.log(days)
+        console.log(Math.trunc(days.length/2))
+        var median = days[Math.trunc(days.length/2)]
         var expiring_length_avg = Math.trunc(total_time/total_count)
 
         setCount(expiring_length_30days.toString())
@@ -86,13 +88,13 @@ function StaleCookies() {
         } else if (avg >= 218 && median < 68) {
             info = "there are more cookies that has extremely long lifespan."
         } else {
-            info = "it is better for you to remove some of your cookies!"
+            info = "your cookies are above the standard."
         }
 
         return (
             <div className="text">
            <p>The average lifetime of your cookies is {avg} days, the median lifetime is {median} days.</p>
-                <p>According to large datasets with 218 days average and 68 days median, {info}</p>
+                <p>According to the previous study result (Miller & Skiera, 2017) with 218 days average and 68 days median, {info}</p>
                 <p> <br></br>
                 Manage your <a href="https://support.google.com/chrome/answer/95647?hl=en&co=GENIE.Platform%3DDesktop" target="_blank">cookies on chrome browser</a>.</p>
                 
@@ -122,6 +124,8 @@ function StaleCookies() {
     
     const TopSites = () => {
         // console.log("a"+chrome.cookies.set.length)
+        let top_sites = new Array();
+        let top_10 = new Array();
         const [table, setTable] = useState<TableRow[]>([]);
         const fetchTopSites = () => {
             chrome.cookies.getAll(
@@ -132,13 +136,13 @@ function StaleCookies() {
                             sites[cookie.domain] = cookie.expirationDate;
                         }
                     })
-                    let top_sites = new Array();
+                    
                     for (var [site, expire_time] of Object.entries(sites)) {
                         var date = new Date(expire_time * 1000).toDateString()
                         top_sites.push({ domain: site, expirationTime_number: Math.trunc(expire_time*1000), expirationTime_string: date });
                     }
                     top_sites.sort(function (a, b) { return b.expirationTime_number - a.expirationTime_number });
-                    let top_10 = top_sites.slice(0, 10);
+                    top_10 = top_sites.slice(0, 10);
                     setTable(top_10);
                 }
             );
