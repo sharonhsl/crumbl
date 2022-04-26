@@ -34,6 +34,7 @@ function Overview(props: OverviewProps) {
                             }
                         });
                     setDomains(new Set(d));
+                    setCurrCount(total);
                 }
             }
         });
