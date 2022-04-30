@@ -2,15 +2,43 @@ import React, { useEffect, useState } from 'react';
 import Button from './Button';
 import './Flavors.css';
 
-
 interface FlavorsProps {
     tabId: number | null;
 }
 
+interface Cookies {
+    domain: string;
+    name: string;
+    expirationDate?: number | undefined;
+    category?: string | undefined;
+}
 
 const Flavors = (props: FlavorsProps) => {
-    const [data, setData] = useState<chrome.cookies.Cookie[]>([]);
+    const [data, setData] = useState<Cookies[]>([]);
     const [showFlavors, setShowFlavors] = useState(false);
+
+    const checkCookieFlavor = async (cookies: chrome.cookies.Cookie[]) => {
+        const response = await fetch(
+            "http://localhost:5000/",
+            {
+                method: 'POST',
+                mode: 'cors',
+                cache: 'no-cache',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                redirect: 'follow',
+                referrerPolicy: 'no-referrer',
+                body: JSON.stringify(
+                    {
+                        "list": cookies.map(c => ({ "name": c.name, "domain": c.domain }))
+                    }
+                )
+            }
+        );
+        response.json().then(data => setData(data['results']));
+    }
 
     const checkTabCookies = (tabId: number) => {
         chrome.storage.local.get(tabId.toString(), async (result) => {
@@ -24,6 +52,7 @@ const Flavors = (props: FlavorsProps) => {
                 }
                 c.sort((a, b) => a.domain > b.domain ? 1 : -1);
                 setData(c);
+                checkCookieFlavor(c);
             }
         });
     };
@@ -45,6 +74,7 @@ const Flavors = (props: FlavorsProps) => {
                     <th>domain</th>
                     <th>name</th>
                     <th>expiry</th>
+                    <th>Flavor</th>
                 </tr>
             </thead>
             <tbody>
@@ -56,6 +86,7 @@ const Flavors = (props: FlavorsProps) => {
                         <td>{d.domain}</td>
                         <td>{d.name}</td>
                         <td>{date && date.toLocaleDateString()}</td>
+                        <td>{d.category}</td>
                     </tr>
                 })}
             </tbody>
