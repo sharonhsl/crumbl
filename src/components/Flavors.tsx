@@ -19,7 +19,7 @@ const Flavors = (props: FlavorsProps) => {
 
     const checkCookieFlavor = async (cookies: chrome.cookies.Cookie[]) => {
         const response = await fetch(
-            "http://localhost:5000/",
+            "https://crumbl-server.herokuapp.com/",
             {
                 method: 'POST',
                 mode: 'cors',
