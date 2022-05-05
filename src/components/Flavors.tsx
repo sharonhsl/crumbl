@@ -1,3 +1,4 @@
+import { find } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import Button from './Button';
 import './Flavors.css';
@@ -6,7 +7,7 @@ interface FlavorsProps {
     tabId: number | null;
 }
 
-interface Cookies {
+interface Cookie {
     domain: string;
     name: string;
     expirationDate?: number | undefined;
@@ -14,7 +15,7 @@ interface Cookies {
 }
 
 const Flavors = (props: FlavorsProps) => {
-    const [data, setData] = useState<Cookies[]>([]);
+    const [cookies, setCookies] = useState<Cookie[]>([]);
     const [showFlavors, setShowFlavors] = useState(false);
 
     const checkCookieFlavor = async (cookies: chrome.cookies.Cookie[]) => {
@@ -37,7 +38,17 @@ const Flavors = (props: FlavorsProps) => {
                 )
             }
         );
-        response.json().then(data => setData(data['results']));
+
+        response.json().then(data => {
+            console.log(data);
+            data['results'].forEach((c: Cookie) => {
+                let exp = find(cookies, { name: c.name, domain: c.domain });
+                if (exp !== undefined) {
+                    c.expirationDate = exp.expirationDate;
+                }
+            });
+            setCookies(data['results']);
+        });
     }
 
     const checkTabCookies = (tabId: number) => {
@@ -51,7 +62,7 @@ const Flavors = (props: FlavorsProps) => {
                     );
                 }
                 c.sort((a, b) => a.domain > b.domain ? 1 : -1);
-                setData(c);
+                setCookies(c);
                 checkCookieFlavor(c);
             }
         });
@@ -78,7 +89,7 @@ const Flavors = (props: FlavorsProps) => {
                 </tr>
             </thead>
             <tbody>
-                {data && data.map((d, i) => {
+                {cookies && cookies.map((d, i) => {
                     let date;
                     if (d.expirationDate) date = new Date(d.expirationDate * 1000);
                     return <tr key={i}>
