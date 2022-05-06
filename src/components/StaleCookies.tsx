@@ -133,6 +133,9 @@ function StaleCookies() {
                     
                     for (var [site, expire_time] of Object.entries(sites)) {
                         var date = new Date(expire_time * 1000).toDateString()
+                        if (new Date(expire_time * 1000).getFullYear() < 9999) {
+                            top_sites.push({ domain: site, expirationTime_number: Math.trunc(expire_time * 1000), expirationTime_string: date });
+                        }
                         top_sites.push({ domain: site, expirationTime_number: Math.trunc(expire_time * 1000), expirationTime_string: date });
                     }
                     top_sites.sort(function (a, b) { return b.expirationTime_number - a.expirationTime_number });
